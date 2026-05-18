@@ -4,8 +4,10 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, {
     FadeInDown,
     FadeOutRight,
-    Layout,
+    LinearTransition,
 } from "react-native-reanimated";
+
+import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 
 const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -21,101 +23,116 @@ const getPriorityColor = (priority: string) => {
 };
 
 export default function TodoItem({ item, onToggle, onDelete }: any) {
-    return (
-        <Animated.View
-            entering={FadeInDown.duration(400)}
-            exiting={FadeOutRight.duration(300)}
-            layout={Layout.springify()}
-            style={{
-                backgroundColor: "#1e1e1e",
-                padding: 14,
-                borderRadius: 12,
-                marginBottom: 10,
-            }}
-        >
-            {/* Top */}
-            <View
+
+    // Right Swipe Action
+    const renderRightActions = () => {
+        return (
+            <TouchableOpacity
+                onPress={() => onDelete(item.id)}
                 style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
+                    backgroundColor: "#ff4d4d",
+                    justifyContent: "center",
                     alignItems: "center",
+                    width: 80,
+                    borderRadius: 12,
+                    marginBottom: 10,
                 }}
             >
-                <TouchableOpacity
-                    onPress={() => onToggle(item.id)}
+                <Ionicons name="trash" size={24} color="white" />
+            </TouchableOpacity>
+        );
+    };
+
+    return (
+        <Swipeable renderRightActions={renderRightActions}>
+
+            <Animated.View
+                entering={FadeInDown.duration(400)}
+                exiting={FadeOutRight.duration(300)}
+                layout={LinearTransition.springify()}
+                style={{
+                    backgroundColor: "#1e1e1e",
+                    padding: 14,
+                    borderRadius: 12,
+                    marginBottom: 10,
+                }}
+            >
+                {/* Top Row */}
+                <View
                     style={{
                         flexDirection: "row",
+                        justifyContent: "space-between",
                         alignItems: "center",
-                        flex: 1,
                     }}
                 >
-                    <Ionicons
-                        name={item.completed ? "checkbox" : "square-outline"}
-                        size={22}
-                        color={item.completed ? "#4CAF50" : "#aaa"}
-                    />
-
-                    <Text
+                    <TouchableOpacity
+                        onPress={() => onToggle(item.id)}
                         style={{
-                            marginLeft: 10,
-                            color: item.completed ? "#777" : "#fff",
-                            textDecorationLine: item.completed
-                                ? "line-through"
-                                : "none",
-                            fontSize: 16,
-                            fontWeight: "600",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            flex: 1,
                         }}
                     >
-                        {item.title}
+                        <Ionicons
+                            name={item.completed ? "checkbox" : "square-outline"}
+                            size={22}
+                            color={item.completed ? "#4CAF50" : "#aaa"}
+                        />
+
+                        <Text
+                            style={{
+                                marginLeft: 10,
+                                color: item.completed ? "#777" : "#fff",
+                                textDecorationLine: item.completed
+                                    ? "line-through"
+                                    : "none",
+                                fontSize: 16,
+                                fontWeight: "600",
+                            }}
+                        >
+                            {item.title}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Description */}
+                {item.description ? (
+                    <Text
+                        style={{
+                            color: "#aaa",
+                            marginTop: 6,
+                            marginLeft: 32,
+                        }}
+                    >
+                        {item.description}
                     </Text>
-                </TouchableOpacity>
+                ) : null}
 
-                <TouchableOpacity onPress={() => onDelete(item.id)}>
-                    <Ionicons
-                        name="trash-outline"
-                        size={20}
-                        color="#ff4d4d"
-                    />
-                </TouchableOpacity>
-            </View>
-
-            {/* Description */}
-            {item.description ? (
-                <Text
+                {/* Bottom Meta */}
+                <View
                     style={{
-                        color: "#aaa",
-                        marginTop: 6,
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        marginTop: 10,
                         marginLeft: 32,
                     }}
                 >
-                    {item.description}
-                </Text>
-            ) : null}
-
-            {/* Bottom */}
-            <View
-                style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    marginTop: 10,
-                    marginLeft: 32,
-                }}
-            >
-                <Text
-                    style={{
-                        color: getPriorityColor(item.priority),
-                        fontWeight: "600",
-                    }}
-                >
-                    {item.priority}
-                </Text>
-
-                {item.dueDate ? (
-                    <Text style={{ color: "#888" }}>
-                        📅 {item.dueDate}
+                    <Text
+                        style={{
+                            color: getPriorityColor(item.priority),
+                            fontWeight: "600",
+                        }}
+                    >
+                        {item.priority}
                     </Text>
-                ) : null}
-            </View>
-        </Animated.View>
+
+                    {item.dueDate ? (
+                        <Text style={{ color: "#888" }}>
+                            📅 {item.dueDate}
+                        </Text>
+                    ) : null}
+                </View>
+            </Animated.View>
+        </Swipeable>
     );
 }
