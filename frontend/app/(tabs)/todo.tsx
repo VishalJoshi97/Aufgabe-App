@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import {View, Text, FlatList} from "react-native";
 import { useEffect, useState,useRef } from "react";
 import TodoInput from "@/src/components/todo/TodoInput";
 import TodoList from "@/src/components/todo/TodoList";
@@ -11,6 +11,7 @@ import {
 import FloatingAddButton from "@/src/components/todo/FloatingAddButton";
 import TodoBottomSheet from "@/src/components/todo/TodoBottomSheet";
 import TodoStats from "@/src/components/todo/TodoStats";
+import TodoItem from "@/src/components/todo/TodoItem";
 
 
 export default function TodoScreen() {
@@ -18,8 +19,9 @@ export default function TodoScreen() {
 
     const bottomSheetRef = useRef<any>(null);
 
-    const openBottomSheet = () => { bottomSheetRef.current?.expand(); };
-
+    const openBottomSheet = () => {
+        bottomSheetRef.current?.present();
+    };
     const loadTodos = async () => {
         const res = await getTodosApi();
         setTodos(sortTodos(res.data));
@@ -47,8 +49,8 @@ export default function TodoScreen() {
     const res = await createTodoApi(payload);
              setTodos(sortTodos([res.data, ...todos]));
 
-             bottomSheetRef.current?.close();
-};
+             bottomSheetRef.current?.dismiss();
+         };
 
 
     const handleToggle = async (id: number) => {
@@ -86,22 +88,50 @@ const sortTodos = (todos: any[]) => {
 
 
     return (
-        <View style={{ flex: 1, backgroundColor: "#121212", padding: 16 }}>
-            <Text style={{ color: "white", fontSize: 26, marginBottom: 10 }}>
+        <View
+            style={{
+                flex: 1,
+                backgroundColor: "#121212",
+                paddingHorizontal: 16,
+                paddingTop: 16,
+            }}
+        >
+            <Text
+                style={{
+                    color: "white",
+                    fontSize: 26,
+                    marginBottom: 16,
+                    fontWeight: "700",
+                }}
+            >
                 Your Tasks
             </Text>
 
-            <TodoInput onAdd={handleAdd} />
-
-            <TodoStats todos={todos} />
-
-            <TodoList
-                todos={todos}
-                onToggle={handleToggle}
-                onDelete={handleDelete}
+            <FlatList
+                data={todos}
+                keyExtractor={(item) => item.id.toString()}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={{
+                    paddingBottom: 140,
+                }}
+                ListHeaderComponent={
+                    <TodoStats todos={todos} />
+                }
+                renderItem={({ item }) => (
+                    <TodoItem
+                        item={item}
+                        onToggle={handleToggle}
+                        onDelete={handleDelete}
+                    />
+                )}
             />
 
-            <TodoBottomSheet ref={bottomSheetRef} onAdd={handleAdd} />
+            <TodoBottomSheet
+                ref={bottomSheetRef}
+                onAdd={handleAdd}
+            />
+
             <FloatingAddButton onPress={openBottomSheet} />
         </View>
     );
