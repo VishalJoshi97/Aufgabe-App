@@ -1,6 +1,12 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+import Animated, {
+    FadeInDown,
+    FadeOutRight,
+    Layout,
+} from "react-native-reanimated";
+
 const getPriorityColor = (priority: string) => {
     switch (priority) {
         case "HIGH":
@@ -15,9 +21,11 @@ const getPriorityColor = (priority: string) => {
 };
 
 export default function TodoItem({ item, onToggle, onDelete }: any) {
-    const isOverdue = item.dueDate && new Date(item.dueDate) < new Date();
     return (
-        <View
+        <Animated.View
+            entering={FadeInDown.duration(400)}
+            exiting={FadeOutRight.duration(300)}
+            layout={Layout.springify()}
             style={{
                 backgroundColor: "#1e1e1e",
                 padding: 14,
@@ -25,7 +33,7 @@ export default function TodoItem({ item, onToggle, onDelete }: any) {
                 marginBottom: 10,
             }}
         >
-            {/* Top Row */}
+            {/* Top */}
             <View
                 style={{
                     flexDirection: "row",
@@ -35,7 +43,11 @@ export default function TodoItem({ item, onToggle, onDelete }: any) {
             >
                 <TouchableOpacity
                     onPress={() => onToggle(item.id)}
-                    style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
+                    style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        flex: 1,
+                    }}
                 >
                     <Ionicons
                         name={item.completed ? "checkbox" : "square-outline"}
@@ -46,8 +58,10 @@ export default function TodoItem({ item, onToggle, onDelete }: any) {
                     <Text
                         style={{
                             marginLeft: 10,
-                            color: isOverdue ? "#ff4d4d" : "#888"    ,
-                            textDecorationLine: item.completed ? "line-through" : "none",
+                            color: item.completed ? "#777" : "#fff",
+                            textDecorationLine: item.completed
+                                ? "line-through"
+                                : "none",
                             fontSize: 16,
                             fontWeight: "600",
                         }}
@@ -57,7 +71,11 @@ export default function TodoItem({ item, onToggle, onDelete }: any) {
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => onDelete(item.id)}>
-                    <Ionicons name="trash-outline" size={20} color="#ff4d4d" />
+                    <Ionicons
+                        name="trash-outline"
+                        size={20}
+                        color="#ff4d4d"
+                    />
                 </TouchableOpacity>
             </View>
 
@@ -74,7 +92,7 @@ export default function TodoItem({ item, onToggle, onDelete }: any) {
                 </Text>
             ) : null}
 
-            {/* Bottom Meta */}
+            {/* Bottom */}
             <View
                 style={{
                     flexDirection: "row",
@@ -83,25 +101,21 @@ export default function TodoItem({ item, onToggle, onDelete }: any) {
                     marginLeft: 32,
                 }}
             >
-                {/* Priority */}
-                <View style={{
-                    backgroundColor: getPriorityColor(item.priority),
-                    paddingHorizontal: 8,
-                    paddingVertical: 4,
-                    borderRadius: 6
-                }}>
-                    <Text style={{ color: "white", fontSize: 12 }}>
-                        {item.priority}
-                    </Text>
-                </View>
+                <Text
+                    style={{
+                        color: getPriorityColor(item.priority),
+                        fontWeight: "600",
+                    }}
+                >
+                    {item.priority}
+                </Text>
 
-                {/* Due Date */}
                 {item.dueDate ? (
                     <Text style={{ color: "#888" }}>
                         📅 {item.dueDate}
                     </Text>
                 ) : null}
             </View>
-        </View>
+        </Animated.View>
     );
 }
