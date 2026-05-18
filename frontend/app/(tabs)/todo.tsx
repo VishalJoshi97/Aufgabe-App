@@ -8,10 +8,10 @@ import {
     toggleTodoApi,
     deleteTodoApi,
 } from "@/src/api/todoApi";
-
-
 import FloatingAddButton from "@/src/components/todo/FloatingAddButton";
 import TodoBottomSheet from "@/src/components/todo/TodoBottomSheet";
+import TodoStats from "@/src/components/todo/TodoStats";
+
 
 export default function TodoScreen() {
     const [todos, setTodos] = useState<any[]>([]);
@@ -92,6 +92,8 @@ const sortTodos = (todos: any[]) => {
             </Text>
 
             <TodoInput onAdd={handleAdd} />
+
+            <TodoStats todos={todos} />
 
             <TodoList
                 todos={todos}
