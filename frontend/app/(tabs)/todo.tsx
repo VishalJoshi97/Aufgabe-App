@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 import TodoInput from "@/src/components/todo/TodoInput";
 import TodoList from "@/src/components/todo/TodoList";
 import {
@@ -9,8 +9,16 @@ import {
     deleteTodoApi,
 } from "@/src/api/todoApi";
 
+
+import FloatingAddButton from "@/src/components/todo/FloatingAddButton";
+import TodoBottomSheet from "@/src/components/todo/TodoBottomSheet";
+
 export default function TodoScreen() {
     const [todos, setTodos] = useState<any[]>([]);
+
+    const bottomSheetRef = useRef<any>(null);
+
+    const openBottomSheet = () => { bottomSheetRef.current?.expand(); };
 
     const loadTodos = async () => {
         const res = await getTodosApi();
@@ -38,6 +46,8 @@ export default function TodoScreen() {
 
     const res = await createTodoApi(payload);
              setTodos(sortTodos([res.data, ...todos]));
+
+             bottomSheetRef.current?.close();
 };
 
 
@@ -88,6 +98,9 @@ const sortTodos = (todos: any[]) => {
                 onToggle={handleToggle}
                 onDelete={handleDelete}
             />
+
+            <TodoBottomSheet ref={bottomSheetRef} onAdd={handleAdd} />
+            <FloatingAddButton onPress={openBottomSheet} />
         </View>
     );
 }
